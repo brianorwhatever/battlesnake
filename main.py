@@ -18,8 +18,9 @@ from libs.ads.funcs import playMatches, playMatchesBetweenVersions
 
 import loggers as lg
 
-from libs.ads.config import *
-from libs.ads.settings import run_folder, run_archive_folder
+import config
+
+from settings import run_folder, run_archive_folder
 from libs.ads.initialise import INITIAL_RUN_NUMBER, INITIAL_MODEL_VERSION, INITIAL_MEMORY_VERSION
 import pickle
 
@@ -30,14 +31,14 @@ lg.logger_main.info('=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*')
 env = Game()
 
 # If loading an existing neural network, copy the config file to root
-if INITIAL_RUN_NUMBER != None:
-    copyfile(run_archive_folder + env.name + '/run' + str(INITIAL_RUN_NUMBER).zfill(4) + '/config.py', './config.py')
+#if INITIAL_RUN_NUMBER != None:
+    #copyfile(run_archive_folder + env.name + '/run' + str(INITIAL_RUN_NUMBER).zfill(4) + '/config.py', './config.py')
 
 if INITIAL_MEMORY_VERSION == None:
-    memory = Memory(MEMORY_SIZE)
+    memory = Memory(config.MEMORY_SIZE)
 
-current_NN = Residual_CNN(REG_CONST, LEARNING_RATE, (2,) + env.grid_shape,   env.action_size, HIDDEN_CNN_LAYERS)
-best_NN = Residual_CNN(REG_CONST, LEARNING_RATE, (2,) +  env.grid_shape,   env.action_size, HIDDEN_CNN_LAYERS)
+current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
+best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) +  env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
 
 best_player_version = 0
 best_NN.model.set_weights(current_NN.model.get_weights())
@@ -45,8 +46,8 @@ best_NN.model.set_weights(current_NN.model.get_weights())
 copyfile('./config.py', run_folder + 'config.py')
 plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes = True)
 
-current_player = Agent('current_player', env.state_size, env.action_size, MCTS_SIMS, CPUCT, current_NN)
-best_player = Agent('best_player', env.state_size, env.action_size, MCTS_SIMS, CPUCT, best_NN)
+current_player = Agent('current_player', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, current_NN)
+best_player = Agent('best_player', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, best_NN)
 iteration = 0
 
 while True:
@@ -56,13 +57,13 @@ while True:
 
     print('ITERATION NUMBER ' + str(iteration))
     print('BEST PLAYER VERSION ' + str(best_player_version))
-    print('SELF PLAYING ' + str(EPISODES) + ' EPISODES...')
+    print('SELF PLAYING ' + str(config.EPISODES) + ' EPISODES...')
     print('\n')
     lg.logger_main.info('BEST PLAYER VERSION: %d', best_player_version)
     
-    _, memory, _, _ = playMatches(best_player, best_player, EPISODES, lg.logger_main, turns_until_tau0 = TURNS_UNTIL_TAU0, memory = memory)
+    _, memory, _, _ = playMatches(best_player, best_player, config.EPISODES, lg.logger_main, turns_until_tau0 = config.TURNS_UNTIL_TAU0, memory = memory)
     memory.clear_stmemory()
-    if len(memory.ltmemory) >= MEMORY_SIZE:
+    if len(memory.ltmemory) >= config.MEMORY_SIZE:
         print('RETRAINING')
         current_player.replay(memory.ltmemory)
     
@@ -90,14 +91,14 @@ while True:
         s['state'].render(lg.logger_memory)
 
     print('TOURNAMENT...')
-    scores, _, _points, sp_scores = playMatches(best_player, current_player, EVAL_EPISODES, lg.logger_tourney, turns_until_tau0 = 0, memory = None)
+    scores, _, _points, sp_scores = playMatches(best_player, current_player, config.EVAL_EPISODES, lg.logger_tourney, turns_until_tau0 = 0, memory = None)
     print('\nSCORES')
     print(scores)
     print('\nSTARTING PLAYER / NON-STARTING PLAYER SCORES')
 
     print('\n\n')
     
-    if scores['current_player'] > scores['best_player'] * SCORING_THRESHOLD:
+    if scores['current_player'] > scores['best_player'] * config.SCORING_THRESHOLD:
         best_player_version = best_player_version + 1
         best_NN.model.set_weights(curent_NN.model.get_weights())
         best_NN.write(env.name, best_player_version)

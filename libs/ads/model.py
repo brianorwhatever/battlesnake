@@ -4,7 +4,6 @@ import logging
 import config
 import numpy as np
 
-import matplotlib.pyplot as plt
 
 from keras.models import Sequential, load_model, Model
 from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation, LeakyReLU, add
@@ -72,7 +71,6 @@ class Gen_Model():
                 weights = x[0]
                 s = weights.shape
 
-                fig = plt.figure(figsize=(s[2], s[3]))  # width, height in inches
                 channel = 0
                 filter = 0
                 for i in range(s[2] * s[3]):
@@ -84,7 +82,6 @@ class Gen_Model():
             except:
 
                 try:
-                    fig = plt.figure(figsize=(3, len(x)))  # width, height in inches
                     for i in xrange(len(x)):
                         sub = fig.add_subplot(len(x), 1, i + 1)
                         if i == 0:
@@ -93,20 +90,16 @@ class Gen_Model():
                             clim = (0, 2)
                         sub.imshow([x[i]], cmap='coolwarm', clim=clim, aspect="auto")
 
-                    plt.show()
 
                 except:
                     try:
-                        fig = plt.figure(figsize=(3, 3))  # width, height in inches
                         sub = fig.add_subplot(1, 1, 1)
                         sub.imshow(x[0], cmap='coolwarm', clim=(-1, 1), aspect="auto")
 
-                        plt.show()
 
                     except:
                         pass
 
-            plt.show()
 
         lg.logger_model.info('------------------')
 
