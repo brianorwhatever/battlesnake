@@ -7,11 +7,11 @@ np.set_printoptions(suppress=True)
 from shutil import copyfile
 import random
 
-from libs.ads import Game
-from libs.ads.agent import Agent
-from libs.ads.memory import Memory
-from libs.ads.model import Residual_CNN
-from libs.ads.funcs import playMatches
+from game import Game
+from agent import Agent
+from memory import Memory
+from model import Residual_CNN
+from funcs import playMatches
 
 import loggers as lg
 
