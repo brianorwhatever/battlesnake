@@ -2,12 +2,11 @@
 
 ## Setup
 
-`virtualenv env`
-
-`source env/bin/activate`
-
-`pip install -r requirements.txt`
-
+```
+virtualenv env
+source env/bin/activate
+pip install -r requirements.txt
+```
 
 ## Setup ubuntu
 
@@ -29,3 +28,6 @@ sudo cp cuda/include/*.* /usr/local/cuda/include/
 sudo cp cuda/lib64/*.* /usr/local/cuda/lib64/
 
 sudo apt install python-pip
+
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+```

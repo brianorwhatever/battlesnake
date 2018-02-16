@@ -7,21 +7,18 @@ np.set_printoptions(suppress=True)
 from shutil import copyfile
 import random
 
-
-from keras.utils import plot_model
-
-from libs.ads import Game, GameState
+from libs.ads import Game
 from libs.ads.agent import Agent
 from libs.ads.memory import Memory
 from libs.ads.model import Residual_CNN
-from libs.ads.funcs import playMatches, playMatchesBetweenVersions
+from libs.ads.funcs import playMatches
 
 import loggers as lg
 
 import config
 
 from settings import run_folder, run_archive_folder
-from libs.ads.initialise import INITIAL_RUN_NUMBER, INITIAL_MODEL_VERSION, INITIAL_MEMORY_VERSION
+from initialise import INITIAL_RUN_NUMBER, INITIAL_MEMORY_VERSION
 import pickle
 
 lg.logger_main.info('=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*')
@@ -36,6 +33,9 @@ env = Game()
 
 if INITIAL_MEMORY_VERSION == None:
     memory = Memory(config.MEMORY_SIZE)
+else:
+    print('LOADING MEMORY VERSION ' + str(INITIAL_MEMORY_VERSION) + '...')
+    memory = pickle.load(open(run_archive_folder + env.name + '/run' + str(INITIAL_RUN_NUMBER).zfill(4) + "/memory/memory" + str(INITIAL_MEMORY_VERSION).zfill(4) + ".p",   "rb"))
 
 current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
 best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) +  env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
@@ -100,7 +100,7 @@ while True:
     
     if scores['current_player'] > scores['best_player'] * config.SCORING_THRESHOLD:
         best_player_version = best_player_version + 1
-        best_NN.model.set_weights(curent_NN.model.get_weights())
+        best_NN.model.set_weights(current_NN.model.get_weights())
         best_NN.write(env.name, best_player_version)
 
     else:
