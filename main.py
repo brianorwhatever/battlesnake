@@ -44,7 +44,7 @@ best_player_version = 0
 best_NN.model.set_weights(current_NN.model.get_weights())
 
 copyfile('./config.py', run_folder + 'config.py')
-plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes = True)
+# plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes = True)
 
 current_player = Agent('current_player', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, current_NN)
 best_player = Agent('best_player', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, best_NN)
