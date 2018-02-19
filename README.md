@@ -5,7 +5,14 @@
 ```
 virtualenv env
 source env/bin/activate
-pip install -r requirements.txt
+```
+then
+```
+pip install -r requirements-cpu.txt
+```
+or
+```
+pip install -r requirements-gpu.txt
 ```
 
 ## Setup ubuntu
@@ -31,3 +38,13 @@ sudo apt install python-pip
 
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 ```
+
+### Credits
+
+From a blog post at applied-data.science
+
+> A replica of the AlphaZero methodology in Python
+
+> See this article for a summary of the algorithm and run instructions.
+
+> https://applied-data.science/blog/how-to-build-your-own-alphazero-ai-using-python-and-keras/

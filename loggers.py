@@ -19,11 +19,13 @@ def setup_logger(name, log_file, level=logging.INFO):
 ### WARNING: the mcts log file gets big quite quickly
 
 LOGGER_DISABLED = {
-    'main': False
-    , 'memory': False
-    , 'tourney': False
-    , 'mcts': False
-    , 'model': False}
+    'main': False,
+    'memory': False,
+    'tourney': False,
+    'mcts': False,
+    'model': False,
+    'play': False
+}
 
 logger_mcts = setup_logger('logger_mcts', run_folder + 'logs/logger_mcts.log')
 logger_mcts.disabled = LOGGER_DISABLED['mcts']
@@ -39,3 +41,6 @@ logger_memory.disabled = LOGGER_DISABLED['memory']
 
 logger_model = setup_logger('logger_model', run_folder + 'logs/logger_model.log')
 logger_model.disabled = LOGGER_DISABLED['model']
+
+logger_play = setup_logger('logger_play', run_folder + 'logs/logger_play.log')
+logger_play.disabled = LOGGER_DISABLED['play']
