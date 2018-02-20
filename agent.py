@@ -4,7 +4,7 @@ import numpy as np
 import random
 
 import MCTS as mc
-from game import GameState
+from game import board_to_pos
 from loss import softmax_cross_entropy_with_logits
 
 import config
@@ -24,15 +24,21 @@ class User():
 
     def act(self, state, tau):
         action = None
+
+        class PrintLogger(object):
+
+            def info(self, text):
+                print(text)
+        state.render(PrintLogger())
         while action is None:
+            print("Allowed inputs: ")
+            for option in state.allowedActions:
+                print("(%d, %d)" % board_to_pos(option))
             player_input = input('Enter your chosen action: ')
-            while player_input <= 42:
-                print(player_input)
-                if player_input not in state.allowedActions:
-                    player_input += 7
-                else:
-                    action = player_input
-                    break
+            try:
+                action = state.allowedActions[int(player_input)]
+            except:
+                print("Invalid input")
 
         pi = np.zeros(self.action_size)
         pi[action] = 1
@@ -144,7 +150,7 @@ class Agent():
             probs = probs[allowedActions]
 
             for idx, action in enumerate(allowedActions):
-                newState, _, _ = leaf.state.takeAction(action)
+                newState, _, _ = leaf.state.takeAction(action, 0)
                 if newState.id not in self.mcts.tree:
                     node = mc.Node(newState)
                     self.mcts.addNode(node)

@@ -95,7 +95,7 @@ class MCTS():
             lg.logger_mcts.info('action with highest Q + U...%d', simulationAction)
 
             newState, value, done = currentNode.state.takeAction(
-                simulationAction)  # the value of the newState from the POV of the new playerTurn
+                simulationAction, 0)  # the value of the newState from the POV of the new playerTurn
             currentNode = simulationEdge.outNode
             breadcrumbs.append(simulationEdge)
 

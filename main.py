@@ -37,8 +37,8 @@ else:
     print('LOADING MEMORY VERSION ' + str(INITIAL_MEMORY_VERSION) + '...')
     memory = pickle.load(open(run_archive_folder + env.name + '/run' + str(INITIAL_RUN_NUMBER).zfill(4) + "/memory/memory" + str(INITIAL_MEMORY_VERSION).zfill(4) + ".p",   "rb"))
 
-current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
-best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) +  env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
+current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, env.input_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
+best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, env.input_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
 
 best_player_version = 0
 best_NN.model.set_weights(current_NN.model.get_weights())
