@@ -70,7 +70,7 @@ class Game:
 
 
 class GameState:
-    def __init__(self, board, playerTurn, action=None):
+    def __init__(self, board, playerTurn):
         self.board = board
         self.pieces = {'1': 'X', '0': '-', '-1': 'O'}
         self.playerTurn = playerTurn
@@ -78,7 +78,6 @@ class GameState:
         self.id = self._convertStateToId()
         self.allowedActions = self._allowedActions()
         self.score = self._getScore()
-        self.first_player_action = action
 
     def _allowedActions(self):
         head = np.where(self.board==self.playerTurn)[0][0]
@@ -133,58 +132,32 @@ class GameState:
         unique_counts = dict(zip(*np.unique(score_board, return_counts=True)))
         return unique_counts.get(self.playerTurn, 0), unique_counts.get(-self.playerTurn, 0)
 
-    def takeAction(self, action, turn):
+    def takeAction(self, action):
         done = 0
         value = 0
-        if turn >= 500:
-            if self.score[0] > self.score[1]:
-                value = self.playerTurn
-            elif self.score[0] < self.score[1]:
-                value = -self.playerTurn
-            return GameState(self.board, -self.playerTurn), value, 1
-        if not self.first_player_action:
-            newState = GameState(self.board, -self.playerTurn, action)
-        else:
-            newBoard = np.array(self.board)
 
-            if self.first_player_action == action:
+        newBoard = np.array(self.board)
+
+        if newBoard[action] == WIDTH*HEIGHT:
+            self.move_snake(newBoard, self.playerTurn, action, True)
+        elif newBoard[action] != 0:
+            done = 1
+            value = -self.playerTurn
+        else:
+            self.move_snake(newBoard, self.playerTurn, action)
+
+        if not done and FOOD not in newBoard:
+            food_space = _random_free_space(newBoard)
+            if food_space == -1:
                 done = 1
                 if self.score[0] > self.score[1]:
                     value = self.playerTurn
                 elif self.score[0] < self.score[1]:
                     value = -self.playerTurn
             else:
-                if newBoard[self.first_player_action] == WIDTH*HEIGHT:
-                    self.move_snake(newBoard, -self.playerTurn, self.first_player_action, True)
-                elif newBoard[self.first_player_action] != 0:
-                    done = 1
-                    value = self.playerTurn
-                else:
-                    self.move_snake(newBoard, -self.playerTurn, self.first_player_action)
+                newBoard[food_space] = FOOD
 
-                if newBoard[action] == WIDTH*HEIGHT:
-                    self.move_snake(newBoard, self.playerTurn, action, True)
-                elif newBoard[action] != 0:
-                    done = 1
-                    if value != 0:
-                        value = 0
-                    else:
-                        value = -self.playerTurn
-                else:
-                    self.move_snake(newBoard, self.playerTurn, action)
-
-            if not done and FOOD not in newBoard:
-                food_space = _random_free_space(newBoard)
-                if food_space == -1:
-                    done = 1
-                    if self.score[0] > self.score[1]:
-                        value = self.playerTurn
-                    elif self.score[0] < self.score[1]:
-                        value = -self.playerTurn
-                else:
-                    newBoard[food_space] = FOOD
-
-            newState = GameState(newBoard, -self.playerTurn)
+        newState = GameState(newBoard, -self.playerTurn)
 
         return newState, value, done
 

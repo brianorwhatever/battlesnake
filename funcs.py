@@ -105,7 +105,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
 
             ### Do the action
             state, value, done, _ = env.step(
-                action, turn)  # the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
+                action)  # the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
 
             env.gameState.render(logger)
 
@@ -121,7 +121,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
                     memory.commit_ltmemory()
 
                 if value == 1:
-                    logger.info('%s WINS!', players[state.playerTurn]['name'])
+                    logger.info('%d - %s WINS!', state.playerTurn, players[state.playerTurn]['name'])
                     scores[players[state.playerTurn]['name']] = scores[players[state.playerTurn]['name']] + 1
                     if state.playerTurn == 1:
                         sp_scores['sp'] = sp_scores['sp'] + 1
@@ -129,7 +129,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
                         sp_scores['nsp'] = sp_scores['nsp'] + 1
 
                 elif value == -1:
-                    logger.info('%s WINS!', players[-state.playerTurn]['name'])
+                    logger.info('%d - %s WINS!', -state.playerTurn, players[-state.playerTurn]['name'])
                     scores[players[-state.playerTurn]['name']] = scores[players[-state.playerTurn]['name']] + 1
 
                     if state.playerTurn == 1:

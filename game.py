@@ -4,6 +4,7 @@ from random import randint
 WIDTH = 6
 HEIGHT = 6
 FOOD = WIDTH*HEIGHT
+HEALTH = 15
 
 
 def pos_to_board(x, y):
@@ -31,9 +32,9 @@ class Game:
         action_space[_random_free_space(action_space)] = 1
         action_space[_random_free_space(action_space)] = -1
         action_space[_random_free_space(action_space)] = FOOD
-        self.gameState = GameState(action_space, self.currentPlayer)
+        self.gameState = GameState(action_space, self.currentPlayer, HEALTH, HEALTH)
         self.grid_shape = (WIDTH,HEIGHT)
-        self.input_shape = (3,WIDTH,HEIGHT)
+        self.input_shape = (5,WIDTH,HEIGHT)
         self.name = 'battlesnake'
         self.state_size = len(self.gameState.binary)
         self.action_size = len(action_space)
@@ -44,41 +45,44 @@ class Game:
         action_space[_random_free_space(action_space)] = 1
         action_space[_random_free_space(action_space)] = -1
         action_space[_random_free_space(action_space)] = FOOD
-        self.gameState = GameState(action_space, self.currentPlayer)
+        self.gameState = GameState(action_space, self.currentPlayer, HEALTH, HEALTH)
         return self.gameState
 
-    def step(self, action, turn):
-        next_state, value, done = self.gameState.takeAction(action, turn)
+    def step(self, action):
+        next_state, value, done = self.gameState.takeAction(action)
         self.currentPlayer = -self.currentPlayer
         self.gameState = next_state
         info = None
+        if done:
+            print("%d %d" % (next_state.playerTurn, value))
         return next_state, value, done, info
 
     def identities(self, state, actionValues):
         identities = [(state, actionValues)]
-        board_matrix = np.reshape(state, (WIDTH, HEIGHT))
-        av_matrix = np.reshape(state, (WIDTH, HEIGHT))
+        board_matrix = np.reshape(state.board, (WIDTH, HEIGHT))
+        av_matrix = np.reshape(state.board, (WIDTH, HEIGHT))
 
         for k in range(1,4):
             if WIDTH != HEIGHT and k % 2 != 0:
                 continue
-            current_board = np.squeeze(np.asarray(np.rot90(board_matrix, k)))
-            current_av = np.squeeze(np.asarray(np.rot90(av_matrix, k)))
-            identities.append((GameState(current_board, state.playerTurn), current_av))
+            current_board = np.reshape(np.rot90(board_matrix, k), (WIDTH*HEIGHT,))
+            current_av = np.reshape(np.rot90(av_matrix, k), (WIDTH*HEIGHT,))
+            identities.append((GameState(current_board, state.playerTurn, state.player_life, state.opponent_life), current_av))
 
         return identities
 
 
 class GameState:
-    def __init__(self, board, playerTurn, action=None):
+    def __init__(self, board, playerTurn, player_life, opponent_life):
         self.board = board
         self.pieces = {'1': 'X', '0': '-', '-1': 'O'}
         self.playerTurn = playerTurn
+        self.player_life = player_life
+        self.opponent_life = opponent_life
         self.binary = self._binary()
         self.id = self._convertStateToId()
         self.allowedActions = self._allowedActions()
         self.score = self._getScore()
-        self.first_player_action = action
 
     def _allowedActions(self):
         head = np.where(self.board==self.playerTurn)[0][0]
@@ -115,6 +119,16 @@ class GameState:
 
         position = np.append(position, food)
 
+        health1 = np.zeros(WIDTH*HEIGHT, dtype=int)
+        health1[0] = self.player_life
+
+        position = np.append(position, health1)
+
+        health2 = np.zeros(WIDTH*HEIGHT, dtype=int)
+        health2[0] = self.opponent_life
+
+        position = np.append(position, health2)
+
         return position
 
 
@@ -133,58 +147,35 @@ class GameState:
         unique_counts = dict(zip(*np.unique(score_board, return_counts=True)))
         return unique_counts.get(self.playerTurn, 0), unique_counts.get(-self.playerTurn, 0)
 
-    def takeAction(self, action, turn):
+    def takeAction(self, action):
         done = 0
         value = 0
-        if turn >= 500:
-            if self.score[0] > self.score[1]:
-                value = self.playerTurn
-            elif self.score[0] < self.score[1]:
-                value = -self.playerTurn
-            return GameState(self.board, -self.playerTurn), value, 1
-        if not self.first_player_action:
-            newState = GameState(self.board, -self.playerTurn, action)
-        else:
-            newBoard = np.array(self.board)
 
-            if self.first_player_action == action:
+        newBoard = np.array(self.board)
+
+        if self.player_life < 1:
+            return GameState(newBoard, -self.playerTurn, self.opponent_life, self.player_life-1), 1, 1
+
+        if newBoard[action] == WIDTH*HEIGHT:
+            self.move_snake(newBoard, self.playerTurn, action, True)
+            self.player_life = HEALTH+1
+
+            food_space = _random_free_space(newBoard)
+            if food_space == -1:
                 done = 1
                 if self.score[0] > self.score[1]:
-                    value = self.playerTurn
+                    value = -1
                 elif self.score[0] < self.score[1]:
-                    value = -self.playerTurn
+                    value = 1
             else:
-                if newBoard[self.first_player_action] == WIDTH*HEIGHT:
-                    self.move_snake(newBoard, -self.playerTurn, self.first_player_action, True)
-                elif newBoard[self.first_player_action] != 0:
-                    done = 1
-                    value = self.playerTurn
-                else:
-                    self.move_snake(newBoard, -self.playerTurn, self.first_player_action)
+                newBoard[food_space] = FOOD
+        elif newBoard[action] != 0:
+            done = 1
+            value = 1
+        else:
+            self.move_snake(newBoard, self.playerTurn, action)
 
-                if newBoard[action] == WIDTH*HEIGHT:
-                    self.move_snake(newBoard, self.playerTurn, action, True)
-                elif newBoard[action] != 0:
-                    done = 1
-                    if value != 0:
-                        value = 0
-                    else:
-                        value = -self.playerTurn
-                else:
-                    self.move_snake(newBoard, self.playerTurn, action)
-
-            if not done and FOOD not in newBoard:
-                food_space = _random_free_space(newBoard)
-                if food_space == -1:
-                    done = 1
-                    if self.score[0] > self.score[1]:
-                        value = self.playerTurn
-                    elif self.score[0] < self.score[1]:
-                        value = -self.playerTurn
-                else:
-                    newBoard[food_space] = FOOD
-
-            newState = GameState(newBoard, -self.playerTurn)
+        newState = GameState(newBoard, -self.playerTurn, self.opponent_life, self.player_life-1)
 
         return newState, value, done
 
@@ -230,4 +221,8 @@ class GameState:
                 else:
                     row.append("-")
             logger.info(row)
+        if self.playerTurn == 1:
+            logger.info('X: %d   O: %d' % (self.player_life, self.opponent_life))
+        else:
+            logger.info('X: %d   O: %d' % (self.opponent_life, self.player_life))
         logger.info('--------------')

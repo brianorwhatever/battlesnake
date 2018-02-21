@@ -150,7 +150,7 @@ class Agent():
             probs = probs[allowedActions]
 
             for idx, action in enumerate(allowedActions):
-                newState, _, _ = leaf.state.takeAction(action, 0)
+                newState, _, _ = leaf.state.takeAction(action)
                 if newState.id not in self.mcts.tree:
                     node = mc.Node(newState)
                     self.mcts.addNode(node)
