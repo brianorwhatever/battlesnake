@@ -154,6 +154,10 @@ class GameState:
         newBoard = np.array(self.board)
 
         if self.player_life < 1:
+            if self.playerTurn == 1:
+                newBoard[(self.board>0) & (self.board!=FOOD)] = 0
+            else:
+                newBoard[self.board<0] = 0
             return GameState(newBoard, -self.playerTurn, self.opponent_life, self.player_life-1), 1, 1
 
         if newBoard[action] == WIDTH*HEIGHT:
@@ -170,6 +174,10 @@ class GameState:
             else:
                 newBoard[food_space] = FOOD
         elif newBoard[action] != 0:
+            if self.playerTurn == 1:
+                newBoard[(self.board>0) & (self.board!=FOOD)] = 0
+            else:
+                newBoard[self.board<0] = 0
             done = 1
             value = 1
         else:
