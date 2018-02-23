@@ -55,9 +55,13 @@ class MCTS():
 
         done = 0
         value = 0
+        count = 0
 
         while not currentNode.isLeaf():
-
+            if count > 1000:
+                lg.logger_main.info('hit infinite loop breaking out')
+                break
+            count += 1
             lg.logger_mcts.info('PLAYER TURN...%d', currentNode.state.playerTurn)
 
             maxQU = -99999
