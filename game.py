@@ -6,6 +6,11 @@ HEIGHT = 6
 FOOD = WIDTH*HEIGHT
 HEALTH = 15
 
+class ConsoleLogger:
+
+    def info(self, text):
+        print(text)
+
 
 def pos_to_board(x, y):
     return y*WIDTH + x
@@ -153,16 +158,18 @@ class GameState:
 
         newBoard = np.array(self.board)
 
-        if self.player_life < 1:
+        new_health = self.player_life - 1
+
+        if new_health < 1:
             if self.playerTurn == 1:
                 newBoard[(self.board>0) & (self.board!=FOOD)] = 0
             else:
                 newBoard[self.board<0] = 0
-            return GameState(newBoard, -self.playerTurn, self.opponent_life, self.player_life-1), 1, 1
+            return GameState(newBoard, -self.playerTurn, self.opponent_life, new_health), 1, 1
 
         if newBoard[action] == WIDTH*HEIGHT:
             self.move_snake(newBoard, self.playerTurn, action, True)
-            self.player_life = HEALTH+1
+            new_health = HEALTH
 
             food_space = _random_free_space(newBoard)
             if food_space == -1:
@@ -183,7 +190,7 @@ class GameState:
         else:
             self.move_snake(newBoard, self.playerTurn, action)
 
-        newState = GameState(newBoard, -self.playerTurn, self.opponent_life, self.player_life-1)
+        newState = GameState(newBoard, -self.playerTurn, self.opponent_life, new_health)
 
         return newState, value, done
 
@@ -211,7 +218,7 @@ class GameState:
 
         board[action] = player
 
-    def render(self, logger):
+    def render(self, logger=ConsoleLogger()):
         logger.info('')
         for r in range(HEIGHT):
             row = []
