@@ -102,10 +102,6 @@ class GameState:
         if y-1 >= 0:
             allowed.append(pos_to_board(x, y-1))
 
-        # if nothings allowed kill yourself
-        if len(allowed) < 1:
-            allowed.append(pos_to_board(x, y-1))
-
         return allowed
 
     def _binary(self, current_player=None):
@@ -113,7 +109,7 @@ class GameState:
             current_player = self.playerTurn
 
         player1 = np.array(self.board, copy=True)
-        player1[(self.board<0) | (self.board!=FOOD)] = 0
+        player1[(self.board<0) | (self.board==FOOD)] = 0
 
         player2 = np.array(self.board, copy=True)
         player2[self.board>0] = 0
@@ -123,7 +119,7 @@ class GameState:
         else:
             position = np.append(player2, player1)
 
-        food = np.array(self.board, copy=True)
+        food = np.zeros(WIDTH*HEIGHT, dtype=int)
         food[self.board==FOOD] = 1
 
         position = np.append(position, food)
