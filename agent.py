@@ -24,12 +24,7 @@ class User():
 
     def act(self, state, tau):
         action = None
-
-        class PrintLogger(object):
-
-            def info(self, text):
-                print(text)
-        state.render(PrintLogger())
+        state.render()
         while action is None:
             print("Allowed inputs: ")
             for option in state.allowedActions:
@@ -112,7 +107,6 @@ class Agent():
         lg.logger_mcts.info('CHOSEN ACTION...%d', action)
         lg.logger_mcts.info('MCTS PERCEIVED VALUE...%f', value)
         lg.logger_mcts.info('NN PERCEIVED VALUE...%f', NN_value)
-        # import pdb; pdb.set_trace()
         return (action, pi, value, NN_value)
 
     def get_preds(self, state):
