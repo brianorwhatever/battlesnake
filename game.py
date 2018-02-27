@@ -102,6 +102,10 @@ class GameState:
         if y-1 >= 0:
             allowed.append(pos_to_board(x, y-1))
 
+        # if nothings allowed kill yourself
+        if len(allowed) < 1:
+            allowed.append(pos_to_board(x, y-1))
+
         return allowed
 
     def _binary(self, current_player=None):
