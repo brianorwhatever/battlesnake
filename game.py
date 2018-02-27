@@ -113,6 +113,7 @@ class GameState:
 
         player2 = np.array(self.board, copy=True)
         player2[self.board>0] = 0
+        player2[self.board<0] = 1
 
         if current_player == 1:
             position = np.append(player1, player2)
@@ -124,13 +125,11 @@ class GameState:
 
         position = np.append(position, food)
 
-        health1 = np.zeros(WIDTH*HEIGHT, dtype=int)
-        health1[0] = self.player_life
+        health1 = np.array(list(int(x) for x in np.binary_repr(self.player_life)), dtype=int)
 
         position = np.append(position, health1)
 
-        health2 = np.zeros(WIDTH*HEIGHT, dtype=int)
-        health2[0] = self.opponent_life
+        health2 = np.array(list(int(x) for x in np.binary_repr(self.opponent_life)), dtype=int)
 
         position = np.append(position, health2)
 
