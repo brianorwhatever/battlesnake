@@ -125,11 +125,13 @@ class GameState:
 
         position = np.append(position, food)
 
-        health1 = np.array(list(int(x) for x in np.binary_repr(self.player_life)), dtype=int)
+        binary_health1 = np.array(list(int(x) for x in np.binary_repr(self.player_life)), dtype=int)
+        health1 = np.pad(binary_health1, (WIDTH * HEIGHT - len(binary_health1), 0), 'constant', constant_values=0)
 
         position = np.append(position, health1)
 
-        health2 = np.array(list(int(x) for x in np.binary_repr(self.opponent_life)), dtype=int)
+        binary_health2 = np.array(list(int(x) for x in np.binary_repr(self.opponent_life)), dtype=int)
+        health2 = np.pad(binary_health2, (WIDTH * HEIGHT - len(binary_health2), 0), 'constant', constant_values=0)
 
         position = np.append(position, health2)
 
